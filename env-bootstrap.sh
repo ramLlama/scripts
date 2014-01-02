@@ -1,0 +1,21 @@
+#! /usr/bin/env false
+
+# This script bootstraps the various environment variables to the
+# custom ones for me. DO NOT RUN THIS FILE! Source it instead to
+# import the various environment variable changes
+
+# Constants
+TOAST_LOCATION=${HOME}/.toast/armed/bin/toast
+
+# The temp file for this script
+TEMP_FILE=$(mktemp)
+
+# Load toast environment
+${TOAST_LOCATION} env > "${TEMP_FILE}"
+source "${TEMP_FILE}"
+
+# Load cabal environment
+PATH=~/.cabal/bin:${PATH}
+
+# Load Customizations
+PATH=${HOME}/scripts:${PATH}

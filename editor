@@ -1,0 +1,5 @@
+#!/bin/bash
+# For correct solarized handling
+export TERM=xterm-16color
+
+exec emacsclient -nw --alternate-editor="" -c "$@"

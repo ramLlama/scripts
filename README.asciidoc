@@ -1,0 +1,11 @@
+Scripts README
+==============
+:Author: Ram Raghunathan
+
+Scripts
+-------
+This folder contains various scripts that I have created or
+permanently rented for convenience and hacking around
+limitations. Some scripts are private and hence in the
+.gitignore. Disabled scripts are prepended with a number so that it
+doesn't show up in $PATH searches.

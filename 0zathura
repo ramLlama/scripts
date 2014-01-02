@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+# Start zathura with the right plugin path
+exec ${HOME}/.toast/armed/bin/zathura --plugins-dir ${HOME}/.toast/armed/lib/zathura "$@"
