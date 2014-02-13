@@ -17,5 +17,5 @@ source "${TEMP_FILE}"
 # Load cabal environment
 PATH=~/.cabal/bin:${PATH}
 
-# Load Customizations
-PATH=${HOME}/scripts:${PATH}
+# Load Custom scripts and bin directory
+PATH=${HOME}/scripts:${HOME}/bin:${PATH}
