@@ -38,7 +38,7 @@ while true ; do
     fi
 
     if [[ $DEBUG_FILENAME = 0 ]] ; then
-	CANDIDATE=$(find "$DIRECTORY" -type f | shuf --head-count=1)
+	CANDIDATE=$(find -L "$DIRECTORY" -type f | shuf --head-count=1)
 	if [[ $? != 0 ]] ; then
     	    exit 1
 	fi
