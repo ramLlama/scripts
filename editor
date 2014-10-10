@@ -1,5 +1,8 @@
 #!/bin/bash
-# For correct solarized handling
+# For correct solarized handling in terminal
 export TERM=xterm-16color
+
+# For ssh-agent support
+export SSH_AUTH_SOCK=$(fish -c 'echo $SSH_AUTH_SOCK')
 
 exec emacsclient --alternate-editor="" -c "$@"
