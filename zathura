@@ -1,0 +1,29 @@
+#! /usr/bin/env bash
+
+# default init ZATHURA_PATH
+ZATHURA_PATH=${ZATHURA_PATH:-""}
+
+if [[ "" = $ZATHURA_PATH ]] ; then
+    # Find the zathura to run
+    IFS=':' read -ra PATH_ARRAY <<< "$PATH"
+    for SEARCH_PATH in "${PATH_ARRAY[@]}" ; do
+	ZATHURA_PATH=$(\
+	    find $SEARCH_PATH -executable -regex '.+/zathura$' 2> /dev/null | \
+		grep --invert-match $0 | \
+		head -n1)
+	if [[ $ZATHURA_PATH != "" ]] ; then
+	    break
+	fi
+    done
+    if [[ $ZATHURA_PATH = "" ]] ; then
+	echo "Could not find zathura!" 1>&2
+	exit 255
+    fi
+fi
+
+# print which zathura binary I am launching
+echo "Launching zathura binary at" $ZATHURA_PATH
+
+# Run zathura with correct plugins dir
+ZATHURA_PLUGINS_DIR="$(dirname "$ZATHURA_PATH")/../usr/lib/zathura"
+exec "$ZATHURA_PATH" --plugins-dir "$ZATHURA_PLUGINS_DIR" "$@"
