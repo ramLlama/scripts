@@ -1,0 +1,30 @@
+#! /usr/bin/env bash
+
+# default init EVINCE_PATH
+EVINCE_PATH=${EVINCE_PATH:-""}
+
+if [[ "" = $EVINCE_PATH ]] ; then
+    # Find the evince to run
+    IFS=':' read -ra PATH_ARRAY <<< "$PATH"
+    for SEARCH_PATH in "${PATH_ARRAY[@]}" ; do
+	EVINCE_PATH=$(\
+	    find $SEARCH_PATH -executable -regex '.+/evince$' 2> /dev/null | \
+		grep --invert-match $0 | \
+		head -n1)
+	if [[ $EVINCE_PATH != "" ]] ; then
+	    break
+	fi
+    done
+    if [[ $EVINCE_PATH = "" ]] ; then
+	echo "Could not find evince!" 1>&2
+	exit 255
+    fi
+fi
+
+# print which evince binary I am launching
+echo "Launching evince binary at" $EVINCE_PATH
+
+# Run evince with non-toast LD_LIBRARY_PATH
+TO_DELETE=$(toast env bash | grep LD_LIBRARY_PATH | cut -d= -f2 | cut -d: -f1)
+export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | perl -ne "my @entries = split(\":\"); my @revised_entries = (); for my \$entry (@entries) { if (\$entry ne \"$TO_DELETE\") { push(@revised_entries, \$entry); } } print(join(\":\", @revised_entries));")
+exec "$EVINCE_PATH" "$@"
