@@ -8,9 +8,11 @@ sendNotification () {
 
 if [[ $DPMS_STATUS == "Enabled" ]] ; then
     xset -dpms
+    xset s off
     sendNotification "DPMS Disabled"
 elif [[ $DPMS_STATUS == "Disabled" ]] ; then
     xset +dpms
+    xset s on
     sendNotification "DPMS Enabled"
 else
     sendNotification --urgency=critical "Could not parse 'xset q'!"
