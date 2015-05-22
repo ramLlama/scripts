@@ -15,25 +15,32 @@ if [[ $# -gt 2 ]] ; then
     DEBUG_FILENAME="$3"
 fi
 
-# feh --randomize --bg-fill --no-xinerama "$DIRECTORY"
-# while [[ $? = 0 ]] ; do
-#     sleep "$INTERVAL"
-#     feh --randomize --bg-fill --no-xinerama "$DIRECTORY"
-# done
+function errcho {
+    >&2 "$@"
+}
 
 while true ; do
     XRANDR_LINE=$(xrandr | head -n 1)
     if [[ $? != 0 ]] ; then
+	if [[ $DEBUG_FILENAME != 0 ]] ; then
+	    errcho "Could not get xrandr!"
+	fi
 	exit 1
     fi
 
     DISPLAY_WIDTH=$(perl -e "\$_ = '$XRANDR_LINE'; if (/current (\d+) x \d+/) { print \$1 . \"\n\"; } else { exit 1; }")
     if [[ $? != 0 ]] ; then
+	if [[ $DEBUG_FILENAME != 0 ]] ; then
+	    errcho "Could not parse display width!"
+	fi
 	exit 1
     fi
 
     DISPLAY_HEIGHT=$(perl -e "\$_ = '$XRANDR_LINE'; if (/current \d+ x (\d+)/) { print \$1 . \"\n\"; } else { exit 1; }")
     if [[ $? != 0 ]] ; then
+	if [[ $DEBUG_FILENAME != 0 ]] ; then
+	    errcho "Could not parse display height!"
+	fi
     	exit 1
     fi
 
@@ -50,31 +57,56 @@ while true ; do
 
     CANDIDATE_WIDTH=$(perl -e "\$_ = '$CONVERT_LINE'; if (/(\d+) x \d+/) { print \$1 . \"\n\"; } else { exit 1; }")
     if [[ $? != 0 ]] ; then
+	if [[ $DEBUG_FILENAME != 0 ]] ; then
+	    errcho "Could not get candidate width!"
+	fi
     	exit 1
     fi
 
     CANDIDATE_HEIGHT=$(perl -e "\$_ = '$CONVERT_LINE'; if (/\d+ x (\d+)/) { print \$1 . \"\n\"; } else { exit 1; }")
     if [[ $? != 0 ]] ; then
+	if [[ $DEBUG_FILENAME != 0 ]] ; then
+	    errcho "Could not get candidate height!"
+	fi
     	exit 1
     fi
 
-    SCALE=$(echo "scale=2;" \
-		 "((($DISPLAY_HEIGHT - $CANDIDATE_HEIGHT) /" \
-    		   "$CANDIDATE_HEIGHT) < $SCALE_THRESHOLD) &&" \
-    		 "((($DISPLAY_WIDTH - $CANDIDATE_WIDTH) /" \
-    		   "$CANDIDATE_WIDTH) < $SCALE_THRESHOLD)" | bc)
+    SCALE_DOWN=$(echo "scale=2;" \
+		 "(($DISPLAY_HEIGHT - $CANDIDATE_HEIGHT) < 0) ||" \
+    		 "(($DISPLAY_WIDTH - $CANDIDATE_WIDTH) < 0)" | bc)
     if [[ $? != 0 ]] ; then
+	if [[ $DEBUG_FILENAME != 0 ]] ; then
+	    errcho "Could not calculate SCALE_DOWN!"
+	fi
     	exit 1
     fi
 
-    if [[ $SCALE = 1 ]] ; then
-	feh --bg-fill --no-xinerama "$CANDIDATE"
+    SCALE_UP=$(echo "scale=2;" \
+			"((($DISPLAY_HEIGHT - $CANDIDATE_HEIGHT) /" \
+    			"$CANDIDATE_HEIGHT) < $SCALE_THRESHOLD) &&" \
+    			"((($DISPLAY_WIDTH - $CANDIDATE_WIDTH) /" \
+    			"$CANDIDATE_WIDTH) < $SCALE_THRESHOLD)" | bc)
+    if [[ $? != 0 ]] ; then
+	if [[ $DEBUG_FILENAME != 0 ]] ; then
+	    errcho "Could not calculate SCALE_UP!"
+	fi
+    	exit 1
+    fi
+
+    if [[ $SCALE_DOWN = 1 || $SCALE_UP = 1 ]] ; then
+	feh --bg-max --no-xinerama "$CANDIDATE"
 	if [[ $? != 0 ]] ; then
+	    if [[ $DEBUG_FILENAME != 0 ]] ; then
+		errcho "Failed to call 'feh --bg-max --no-xinerama "$CANDIDATE"'!"
+	    fi
     	    exit 1
 	fi
     else
 	feh --bg-center --no-xinerama "$CANDIDATE"
 	if [[ $? != 0 ]] ; then
+	    if [[ $DEBUG_FILENAME != 0 ]] ; then
+		errcho "Failed to call 'feh --bg-center --no-xinerama "$CANDIDATE"'!"
+	    fi
     	    exit 1
 	fi
     fi
@@ -89,11 +121,15 @@ while true ; do
 	echo $CANDIDATE_HEIGHT
 
 	echo "scale=2;" \
+	     "(($DISPLAY_HEIGHT - $CANDIDATE_HEIGHT) < 0) ||" \
+    	     "(($DISPLAY_WIDTH - $CANDIDATE_WIDTH) < 0)"
+	echo "SCALE_DOWN = $SCALE_DOWN"
+	echo "scale=2;" \
 	     "((($DISPLAY_HEIGHT - $CANDIDATE_HEIGHT) /" \
     	     "$CANDIDATE_HEIGHT) < $SCALE_THRESHOLD) &&" \
     	     "((($DISPLAY_WIDTH - $CANDIDATE_WIDTH) /" \
     	     "$CANDIDATE_WIDTH) < $SCALE_THRESHOLD)"
-	echo "SCALE = $SCALE"
+	echo "SCALE_UP = $SCALE_UP"
     fi
 
     sleep "$INTERVAL"
