@@ -16,7 +16,7 @@ if [[ $# -gt 2 ]] ; then
 fi
 
 function errcho {
-    >&2 "$@"
+    >&2 echo "$@"
 }
 
 while true ; do
