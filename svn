@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+
+# default init SVN_PATH
+SVN_PATH=${SVN_PATH:-""}
+
+if [[ "" = $SVN_PATH ]] ; then
+    # Find the svn to run
+    IFS=':' read -ra PATH_ARRAY <<< "$PATH"
+    for SEARCH_PATH in "${PATH_ARRAY[@]}" ; do
+	SVN_PATH=$(find $SEARCH_PATH -executable -regex '.+/svn$' 2> /dev/null | grep --invert-match $0 | head -n1)
+	if [[ $SVN_PATH != "" ]] ; then
+	    break
+	fi
+    done
+    if [[ $SVN_PATH = "" ]] ; then
+	echo "Could not find svn!" 1>&2
+	exit 255
+    fi
+fi
+
+# print which svn binary I am launching
+echo "Launching svn binary at" $SVN_PATH
+
+exec "$SVN_PATH" --force-interactive "$@"
