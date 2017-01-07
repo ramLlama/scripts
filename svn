@@ -19,6 +19,12 @@ if [[ "" = $SVN_PATH ]] ; then
 fi
 
 # print which svn binary I am launching
-echo "Launching svn binary at" $SVN_PATH
+# INTERACTIVE=$(echo "$@" | perl -ne 'if (/--non-interactive/) { print "0\n"; } else { print "1\n"; }')
+# if [[ $INTERACTIVE == "1" ]] ; then
+#     echo "Launching svn binary at" $SVN_PATH
+#     exec "$SVN_PATH" --force-interactive "$@"
+# else
+#     exec "$SVN_PATH" "$@"
+# fi
 
-exec "$SVN_PATH" --force-interactive "$@"
+exec "$SVN_PATH" "$@"
