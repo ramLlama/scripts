@@ -4,6 +4,9 @@
 # custom ones for me. DO NOT RUN THIS FILE! Source it instead to
 # import the various environment variable changes
 
+# Make sure SHELL is set correctly
+SHELL=/bin/bash
+
 # Constants
 TOAST_LOCATION=${HOME}/.toast/armed/bin/toast
 
@@ -11,11 +14,21 @@ TOAST_LOCATION=${HOME}/.toast/armed/bin/toast
 TEMP_FILE=$(mktemp)
 
 # Load toast environment
-${TOAST_LOCATION} env > "${TEMP_FILE}"
-source "${TEMP_FILE}"
+if [[ -x $TOAST_LOCATION ]] ;
+then
+    ${TOAST_LOCATION} env > "${TEMP_FILE}"
+    source "${TEMP_FILE}"
+fi
 
 # Load cabal environment
 PATH=~/.cabal/bin:${PATH}
 
 # Load Custom scripts and bin directory
 PATH=${HOME}/scripts:${HOME}/bin:${PATH}
+
+# load perl environment
+perl -Mlocal::lib > "${TEMP_FILE}"
+source "${TEMP_FILE}"
+
+# Remove temp file
+rm $TEMP_FILE
