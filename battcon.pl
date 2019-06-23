@@ -4,9 +4,8 @@ use warnings;
 use strict;
 
 use File::Slurp;
-use Readonly;
 
-Readonly my $uevent_template => <<'END';
+my $UEVENT_TEMPLATE = <<'END';
 POWER_SUPPLY_NAME=BATCON
 POWER_SUPPLY_STATUS=<POWER_SUPPLY_STATUS>
 POWER_SUPPLY_PRESENT=1
@@ -25,16 +24,16 @@ POWER_SUPPLY_MANUFACTURER=LlamaCorp
 POWER_SUPPLY_SERIAL_NUMBER=1
 END
 
-Readonly my $uevent_path_template => "/sys/class/power_supply/<BAT>/uevent";
+my $UEVENT_PATH_TEMPLATE = "/sys/class/power_supply/<BAT>/uevent";
 
-Readonly my @batteries => ("BAT0", "BAT1");
+my @BATTERIES = ("BAT0", "BAT1");
 
 ###############
 # get uevents #
 ###############
 my @uevents = ();
-for my $battery (@batteries) {
-  my $uevent_path = $uevent_path_template;
+for my $battery (@BATTERIES) {
+  my $uevent_path = $UEVENT_PATH_TEMPLATE;
   $uevent_path =~ s/<BAT>/$battery/g;
 
   my %uevent = read_file($uevent_path) =~ /^(\w+)=(.*)$/mg;
@@ -89,7 +88,7 @@ $con_uevent{"POWER_SUPPLY_VOLTAGE_NOW"} =
 ####################
 # Print out uevent #
 ####################
-my $uevent = $uevent_template;
+my $uevent = $UEVENT_TEMPLATE;
 $uevent =~ s/<(.*?)>/$con_uevent{$1}/ge;
 
 print "$uevent";
