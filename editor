@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
-    # already inside emacs, just use $EDITOR instead
-    exec $EDITOR "$@"
+    # already inside emacs, no funny business
+    exec emacsclient "$@"
 fi
 
 exec emacsclient --alternate-editor="" -c "$@"
