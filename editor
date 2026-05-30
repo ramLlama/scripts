@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+if [[ "$INSIDE_EMACS" = 'vterm' || "$INSIDE_EMACS" = 'ghostel' ]]; then
     # already inside emacs, no funny business
     exec emacsclient "$@"
 fi
