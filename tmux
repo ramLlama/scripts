@@ -18,8 +18,10 @@ if [[ "" = $TMUX_PATH ]] ; then
     fi
 fi
 
-# print which tmux binary I am launching
-echo "Launching tmux binary at" $TMUX_PATH
+# print which tmux binary I am launching (stderr, only when DEBUG is set)
+if [[ -n "$DEBUG" && "$DEBUG" != "false" && "$DEBUG" != "0" ]] ; then
+    echo "Launching tmux binary at" $TMUX_PATH 1>&2
+fi
 
 # Run tmux with 256 color support
 exec env TERM=xterm-16color "$TMUX_PATH" -2 "$@"
